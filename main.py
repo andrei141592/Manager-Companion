@@ -11,35 +11,44 @@ def main():
     if not os.path.exists(func.DB_FILE):
         print("Created new encrypted journal database.")
         password = getpass("Defined your password: ")
-        func.init_db(Fernet(func.generate_key_from_password(password)))
+        func.init_db(password)
     else:
         password = getpass("Enter your journal password: ")
-    key = func.generate_key_from_password(password)
-    fernet = Fernet(key)
 
-    if not func.check_password(fernet):
+    if not func.check_password(password):
         print ("❌ Incorrect password.")
         sys.exit()
 
     while True:
         print("\n1. Add entry")
         print("2. Read entries")
-        print("3. Exit")
+        print("3. Change password")
+        print("4. Exit")
 
         choice = input("\nChoose: ")
 
         if choice == "1":
-            func.add_entry(fernet)
+            entry = input("Write your journal entry:\n> ")
+            func.add_entry(password, entry)
         elif choice == "2":
-            try:
-                func.read_entries(fernet)
-            except Exception:
-                print("❌ Wrong password or corrupted data.")
+            print (func.read_entry(password))
         elif choice == "3":
+            current_password = getpass("Enter your curent password: ")
+
+            if not func.check_password(current_password):
+                print ("❌ Incorrect password.")
+                sys.exit()
+            
+            new_password = getpass("Defined your password: ")
+            func.change_password(current_password, new_password)
+
+            print("Pasword changed succesfuly")
+        elif choice == "4":
             print("Goodbye!")
             break
         else:
             print("Invalid option.")
+
 
 
 if __name__ == "__main__":
